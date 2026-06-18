@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gelişmiş Oyun Portalı</title>
+    <style>
+        /* GENEL CSS AYARLARI */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #121212;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Giriş Ekranı */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80') no-repeat center center/cover;
+        }
+
+        .hero h1 {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: #00ffcc;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 35px;
+            color: #bbb;
+        }
+
+        .scroll-btn {
+            background-color: #00ffcc;
+            color: #111;
+            padding: 14px 35px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4);
+        }
+
+        .scroll-btn:hover {
+            background-color: #fff;
+            transform: translateY(-3px);
+        }
+
+        /* Oyunlar Listesi Bölümü */
+        .games-section {
+            padding: 80px 20px;
+            background-color: #1a1a1a;
+        }
+
+        .games-section h2 {
+            font-size: 38px;
+            margin-bottom: 50px;
+            color: #fff;
+        }
+
+        /* Oyun Kartları Izgarası (Grid) */
+        .games-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .game-card {
+            background-color: #242424;
+            width: 320px;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #333;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .game-card:hover {
+            border-color: #00ffcc;
+            transform: translateY(-5px);
+        }
+
+        .game-card h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #00ffcc;
+        }
+
+        .game-card p {
+            color: #aaa;
+            font-size: 15px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .play-btn {
+            background-color: #ff007f;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .play-btn:hover {
+            background-color: #ff3399;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.6);
+        }
+
+        /* OYUN ALANLARI CONTAINER */
+        .game-display-section {
+            padding: 60px 20px;
+            background-color: #111;
+            min-height: 60vh;
+            display: none; /* İlk başta gizli */
+        }
+
+        .game-box {
+            display: none; /* Oyunlar kendi fonksiyonlarıyla açılacak */
+            max-width: 600px;
+            margin: 0 auto;
+            background: #222;
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #00ffcc;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.2);
+        }
+
+        /* 1. TAŞ KAĞIT MAKAS STİLLERİ */
+        .tkm-buttons button {
+            font-size: 40px;
+            padding: 15px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background: #333;
+            transition: 0.2s;
+        }
+        .tkm-buttons button:hover { background: #00ffcc; }
+        .tkm-result { font-size: 22px; margin-top: 20px; color: #ff007f; font-weight: bold; }
+
+        /* 2. SATRANÇ STİLLERİ (Basit Görünüm) */
+        .chess-board {
+            display: grid;
+            grid-template-columns: repeat(8, 50px);
+            grid-template-rows: repeat(8, 50px);
+            width: 400px;
+            height: 400px;
+            margin: 20px auto;
+            border: 2px solid #fff;
+        }
+        .chess-square {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .white-sq { background-color: #f0d9b5; color: #000; }
+        .black-sq { background-color: #b58863; color: #000; }
+        .selected-sq { background-color: #7fffd4 !important; }
+    </style>
+</head>
+<body>
+
+    <div class="hero">
+        <h1>Oyun Dünyasına Hoş Geldin</h1>
+        <p>Aşağı kaydır ve oynamak istediğin oyunu seç!</p>
+        <a href="#games" class="scroll-btn">Oyunları Listele ▼</a>
+    </div>
+
+    <div id="games" class="games-section">
+        <h2>Hemen Oyna</h2>
+        <div class="games-grid">
+
+            <div class="game-card">
+                <h3>Taş, Kağıt, Makas</h3>
+                <p>Bilgisayara karşı hamleni seç! Şansına ve stratejine güveniyorsan hemen başla.</p>
+                <button class="play-btn" onclick="aktifEt('tkm')">Oyunu Oyna</button>
+            </div>
+
+            <div class="game-card">
+                <h3>Mini Satranç</h3>
+                <p>Taşları hareket ettirerek bilgisayarın şahını sıkıştır! Basit kurallı eğlenceli bir satranç deneyimi.</p>
+                <button class="play-btn" onclick="aktifEt('satranc')">Oyunu Oyna</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="gameDisplaySection" class="game-display-section">
+        
+        <div id="tkmBox" class="game-box">
+            <h2>Taş, Kağıt, Makas</h2>
+            <p>Birini seç:</p>
+            <div class="tkm-buttons">
+                <button onclick="tkmOyna('Taş')">✊</button>
+                <button onclick="tkmOyna('Kağıt')">✋</button>
+                <button onclick="tkmOyna('Makas')">✌️</button>
+            </div>
+            <div id="tkmResult" class="tkm-result">Seçim bekleniyor...</div>
+        </div>
+
+        <div id="satrancBox" class="game-box">
+            <h2>Basit Satranç</h2>
+            <p>Taş seç ve gitmek istediğin boş kareye bas. (Siyah piyonlar bilgisayardır ve rastgele oynar)</p>
+            <div id="chessBoard" class="chess-board"></div>
+            <div id="chessStatus" style="margin-top:10px; font-weight:bold;">Sıra Sende (Beyazlar)</div>
+        </div>
+
+    </div>
+
+    <script>
+        // Oyun Panellerini Yöneten Fonksiyon
+        function aktifEt(oyunAdi) {
+            // Ana ekranı görünür yap
+            document.getElementById('gameDisplaySection').style.display = 'block';
+            
+            // Tüm oyun kutularını gizle
+            document.getElementById('tkmBox').style.display = 'none';
+            document.getElementById('satrancBox').style.display = 'none';
+
+            // Seçilen oyunu aç ve oraya kaydır
+            if(oyunAdi === 'tkm') {
+                document.getElementById('tkmBox').style.display = 'block';
+            } else if(oyunAdi === 'satranc') {
+                document.getElementById('satrancBox').style.display = 'block';
+                satrancKur();
+            }
+            
+            document.getElementById('gameDisplaySection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /* --- 1. TAŞ KAĞIT MAKAS MANTIĞI --- */
+        function tkmOyna(oyuncuSecimi) {
+            const secenekler = ['Taş', 'Kağıt', 'Makas'];
+            const botSecimi = secenekler[Math.floor(Math.random() * 3)];
+            let sonuc = "";
+
+            if (oyuncuSecimi === botSecimi) {
+                sonuc = `Berabere! İkiniz de ${oyuncuSecimi} seçtiniz.`;
+            } else if (
+                (oyuncuSecimi === 'Taş' && botSecimi === 'Makas') ||
+                (oyuncuSecimi === 'Kağıt' && botSecimi === 'Taş') ||
+                (oyuncuSecimi === 'Makas' && botSecimi === 'Kağıt')
+            ) {
+                sonuc = `Kazandın! 🎉 Sen: ${oyuncuSecimi} | Bot: ${botSecimi}`;
+            } else {
+                sonuc = `Kaybettin! 😢 Sen: ${oyuncuSecimi} | Bot: ${botSecimi}`;
+            }
+            document.getElementById('tkmResult').innerHTML = sonuc;
+        }
+
+
+        /* --- 2. BASİT SATRANÇ MANTIĞI --- */
+        // Bu, kütüphanesiz çalışan temel bir taş hareket ettirme simülasyonudur.
+        let boardState = [
+            ['♜','♞','♝','♛','♚','♝','♞','♜'],
+            ['♟','♟','♟','♟','♟','♟','♟','♟'],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['♙','♙','♙','♙','♙','♙','♙','♙'],
+            ['♖','♘','♗','♕','♔','♗','♘','♖']
+        ];
+        
+        let selectedSquare = null;
+
+        function satrancKur() {
+            const boardDiv = document.getElementById('chessBoard');
+            boardDiv.innerHTML = '';
+            
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const sq = document.createElement('div');
+                    sq.classList.add('chess-square');
+                    sq.classList.add((r + c) % 2 === 0 ? 'white-sq' : 'black-sq');
+                    sq.dataset.row = r;
+                    sq.dataset.col = c;
+                    sq.innerHTML = boardState[r][c];
+                    
+                    sq.addEventListener('click', satrancTiklama);
+                    boardDiv.appendChild(sq);
+                }
+            }
+        }
+
+        function satrancTiklama(e) {
+            const r = parseInt(e.target.dataset.row);
+            const c = parseInt(e.target.dataset.col);
+            
+            if (selectedSquare) {
+                // Taşı Taşı (Basit kuralsız hareket mantığı)
+                const oldR = selectedSquare.row;
+                const oldC = selectedSquare.col;
+                
+                boardState[r][c] = boardState[oldR][oldC];
+                boardState[oldR][oldC] = '';
+                
+                selectedSquare = null;
+                satrancKur();
+                
+                document.getElementById('chessStatus').innerText = "Bot düşünüyor...";
+                setTimeout(botSatrancHareketi, 800);
+            } else {
+                // Taş Seç (Sadece beyaz taşları seçebilir - kabaca kontrol)
+                if (boardState[r][c] !== '' && ['♙','♖','♘','♗','♕','♔'].includes(boardState[r][c])) {
+                    selectedSquare = {row: r, col: c};
+                    e.target.classList.add('selected-sq');
+                }
+            }
+        }
+
+        function botSatrancHareketi() {
+            // Bot için rastgele bir siyah taş bul ve rastgele boş bir kareye oynat
+            let siyahTaslar = [];
+            for(let r=0; r<8; r++) {
+                for(let c=0; c<8; c++) {
+                    if(['♟','♜','♞','♝','♛','♚'].includes(boardState[r][c])) {
+                        siyahTaslar.push({r, c});
+                    }
+                }
+            }
+            
+            if(siyahTaslar.length > 0) {
+                let hamleYapti = false;
+                // Rastgele denemeler yapıp boş yer bulalım
+                for(let i=0; i<50; i++) {
+                    let tas = siyahTaslar[Math.floor(Math.random() * siyahTaslar.length)];
+                    let yeniR = tas.r + (Math.random() > 0.5 ? 1 : 2); // Aşağı doğru hareket simülasyonu
+                    let yeniC = tas.c + Math.floor(Math.random() * 3) - 1;
+                    
+                    if(yeniR >= 0 && yeniR < 8 && yeniC >= 0 && yeniC < 8) {
+                        boardState[yeniR][yeniC] = boardState[tas.r][tas.c];
+                        boardState[tas.r][tas.c] = '';
+                        hamleYapti = true;
+                        break;
+                    }
+                }
+            }
+            
+            satrancKur();
+            document.getElementById('chessStatus').innerText = "Sıra Sende (Beyazlar)";
+        }
+    </script>
+</body>
+</html>
